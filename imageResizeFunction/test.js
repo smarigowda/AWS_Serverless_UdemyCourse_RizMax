@@ -22,14 +22,14 @@ let records = [{
         "s3SchemaVersion": "1.0",
         "configurationId": "testConfigRule",
         "bucket": {
-            "name": "example-bucket",
+            "name": "santosh-images",
             "ownerIdentity": {
                 "principalId": "EXAMPLE"
             },
             "arn": "arn:aws:s3:::example-bucket"
         },
         "object": {
-            "key": "test/key",
+            "key": "lambda-large.jpg",
             "size": 1024,
             "eTag": "0123456789abcdef0123456789abcdef",
             "sequencer": "0A1B2C3D4E5F678901"
