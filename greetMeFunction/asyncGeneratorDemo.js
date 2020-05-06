@@ -18,4 +18,5 @@ const delay = (timeMs) => {
         console.log(num);
         await delay(2000);
     }
+    console.log('end of async iteration...yey')
 })();
