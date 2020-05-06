@@ -9,14 +9,26 @@ async function* imageProcessingGenerator(records) {
     while (i < records.length) {
         let bucket = records[i].s3.bucket.name;
         let filename = records[i].s3.object.key;
+        let params;
 
-        let params = {
+        params = {
             Bucket: bucket,
             Key: filename
         };
 
         let file = await s3.getObject(params).promise();
         console.log('file =', file);
+
+
+        params = {
+            Bucket: 'santosh-images-resized',
+            Key: 'lambda-large-resized.jpg',
+            Body: new Buffer.from(file.Body),
+            ContentType: 'image/jpeg'
+        };
+
+        let result = await s3.putObject(params).promise();
+        console.log('result', result);
 
         yield {
             bucket,
