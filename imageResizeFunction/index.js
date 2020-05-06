@@ -2,6 +2,8 @@ const AWS = require('aws-sdk');
 
 const s3 = new AWS.S3();
 
+const destinationBucket = 'santosh-images-resized';
+
 async function* imageProcessingGenerator(records) {
     console.log('Inside async generator...');
     let i = 0;
@@ -21,8 +23,8 @@ async function* imageProcessingGenerator(records) {
 
 
         params = {
-            Bucket: 'santosh-images-resized',
-            Key: 'lambda-large-resized.jpg',
+            Bucket: destinationBucket,
+            Key: filename.substring(0, filename.lastIndexOf('.')) + '-resized.jpg',
             Body: new Buffer.from(file.Body),
             ContentType: 'image/jpeg'
         };
