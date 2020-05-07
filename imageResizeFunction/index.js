@@ -1,15 +1,15 @@
 const AWS = require('aws-sdk');
+const jimp = require('jimp');
 
 const s3 = new AWS.S3();
 
 const destinationBucket = 'santosh-images-resized';
 
 async function* imageProcessingGenerator(records) {
-    console.log('Inside async generator...');
     let i = 0;
 
     while (i < records.length) {
-        let bucket = records[i].s3.bucket.name;
+        let bucket = records[i].s3.bucket.name; // this is the source bucket (part of event record)
         let filename = records[i].s3.object.key;
         let params;
 
@@ -19,30 +19,33 @@ async function* imageProcessingGenerator(records) {
         };
 
         let file = await s3.getObject(params).promise();
-        console.log('file =', file);
 
+        let image = await jimp.read(new Buffer.from(file.Body));
+        let imageResized = image.resize(150, 150);
+        let resizedBuffer = await imageResized.getBufferAsync('image/jpeg');
+        let resizedFileName = filename.substring(0, filename.lastIndexOf('.')) + '-resized.jpg';
 
         params = {
             Bucket: destinationBucket,
-            Key: filename.substring(0, filename.lastIndexOf('.')) + '-resized.jpg',
-            Body: new Buffer.from(file.Body),
+            Key: resizedFileName,
+            Body: resizedBuffer,
             ContentType: 'image/jpeg'
         };
 
-        let result = await s3.putObject(params).promise();
-        console.log('result', result);
+        await s3.putObject(params).promise();
 
         yield {
-            bucket,
-            filename
+            destinationBucket,
+            resizedFileName
         };
         i++;
     }
 }
 
 exports.handler = async (event) => {
-    console.log('handler function...');
     for await (let item of imageProcessingGenerator(event.Records)) {
+        console.log('image successfully resized, details:')
         console.log(item);
     }
+    console.log('end of program, have nice day !');
 }
